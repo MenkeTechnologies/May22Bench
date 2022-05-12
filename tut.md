@@ -1,6 +1,7 @@
 # Nexient Bench Elasticsearch 8 tutorial based off [here](https://logz.io/blog/elasticsearch-tutorial/), [here](https://www.baeldung.com/elasticsearch-java) and [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)
 
 ## Dependencies
+
 - docker
 - python3
 - curl
@@ -10,12 +11,14 @@
 ## --- Part 1 ---
 
 ## Run Elasticsearch in Docker container with Docker compose (recommended)
+
 ```bash
 # in root dir of project
 docker-compose up
 ```
 
-## Run Elasticsearch in Docker container
+## OR Run Elasticsearch in standalone Docker container
+
 ```bash
 docker container run -p 9200:9200 -e "discovery.type=single-node" -e COLUMNS=$(tput cols) -e LINES=$(tput lines) -e ELASTIC_PASSWORD=changeme -i -t elasticsearch:8.2.0
 ```
@@ -26,9 +29,10 @@ docker container run -p 9200:9200 -e "discovery.type=single-node" -e COLUMNS=$(t
 curl -fsSlku "elastic:$PASSWORD" https://localhost:9200
 ```
 
-## OR Create VM with Debian-based Distro 
+## OR Create VM with Debian-based Distro
 
 ### Install Elasticsearch
+
 ```bash
 curl -fsSl https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 sudo apt-get install apt-transport-https
@@ -52,6 +56,7 @@ sudo systemctl start  elasticsearch
 ```
 
 ### Tail Elasticsearch logs
+
 ```bash
 tail -n +1 -F /var/log/elasticsearch/*.log
 ```
@@ -90,14 +95,46 @@ curl -fsSlku "elastic:changeme" -X POST -H 'Content-Type: application/json' -d '
 ' https://localhost:9200/my-index-000001/_doc/
 ```
 
+### Get cluster health
+
+```bash
+curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/_cluster/health | python3 -m json.tool | less
+```
+
+### Get cluster stats
+
+```bash
+curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/_cluster/stats | python3 -m json.tool | less
+```
+
+### Get all cluster settings
+
+```bash
+curl -fsSlku "elastic:changeme" -X GET 'https://localhost:9200/_cluster/settings/?include_defaults=true&flat_settings=true' | python3 -m json.tool | less
+```
+
+### A collection of connected nodes is called a cluster.
+
+### Get nodes info
+
+```bash
+curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/_nodes | python3 -m json.tool | less
+```
+
+### Get all indices (not JSON output)
+
+```bash
+curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/_cat/indices |  less
+```
+
 ### Get information on index
 
 ```bash
-curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/my-index-000001/ | python3 -m json.tool
+curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/my-index-000001/ | python3 -m json.tool | less
 ```
 
 ```bash
-curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/my-index-000001/_search | python3 -m json.tool
+curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/my-index-000001/_search | python3 -m json.tool | less
 ```
 
 ## --- Part 3 ---
@@ -105,6 +142,7 @@ curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/my-index-000001/_s
 ### Add Elasticsearch Java API to maven pom.xml
 
 ```xml
+
 <dependencies>
     <dependency>
         <groupId>co.elastic.clients</groupId>
