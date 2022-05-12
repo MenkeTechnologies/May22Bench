@@ -9,15 +9,15 @@
 
 ## --- Part 1 ---
 
-## Run Elasticsearch in Docker container (recommended)
+## Run Elasticsearch in Docker container with Docker compose (recommended)
 ```bash
-docker container run -p 9200:9200 -e "discovery.type=single-node" -e COLUMNS=$(tput cols) -e LINES=$(tput lines) -i -t elasticsearch:8.2.0
+# in root dir of project
+docker-compose up
 ```
 
-#### Copy password from output
-#### Look for `Password for the elastic user (reset with bin/elasticsearch-reset-password -u elastic):` and set PASSWORD for example:
+## Run Elasticsearch in Docker container
 ```bash
-PASSWORD=gpdbLPaW5Hee12oW1Btv
+docker container run -p 9200:9200 -e "discovery.type=single-node" -e COLUMNS=$(tput cols) -e LINES=$(tput lines) -e ELASTIC_PASSWORD=changeme -i -t elasticsearch:8.2.0
 ```
 
 ### Test Elasticsearch
@@ -59,7 +59,7 @@ tail -n +1 -F /var/log/elasticsearch/*.log
 ### Test Elasticsearch
 
 ```bash
-curl -fsSlku "elastic:$PASSWORD" https://localhost:9200
+curl -fsSlku "elastic:changeme" https://localhost:9200
 ```
 
 ## --- Part 2 ---
@@ -67,7 +67,7 @@ curl -fsSlku "elastic:$PASSWORD" https://localhost:9200
 ### Alter cluster settings to automatically create indices
 
 ```bash
-curl -fsSlku "elastic:$PASSWORD" -X PUT -H 'Content-Type: application/json' -d '
+curl -fsSlku "elastic:changeme" -X PUT -H 'Content-Type: application/json' -d '
 {
   "persistent": {
     "action.auto_create_index": "true" 
@@ -79,7 +79,7 @@ curl -fsSlku "elastic:$PASSWORD" -X PUT -H 'Content-Type: application/json' -d '
 ### Insert a document
 
 ```bash
-curl -fsSlku "elastic:$PASSWORD" -X POST -H 'Content-Type: application/json' -d '
+curl -fsSlku "elastic:changeme" -X POST -H 'Content-Type: application/json' -d '
 {
   "@timestamp": "2099-11-15T13:12:00",
   "message": "GET /search HTTP/1.1 200 1070000",
@@ -93,11 +93,11 @@ curl -fsSlku "elastic:$PASSWORD" -X POST -H 'Content-Type: application/json' -d 
 ### Get information on index
 
 ```bash
-curl -fsSlku "elastic:$PASSWORD" -X GET https://localhost:9200/my-index-000001/ | python3 -m json.tool
+curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/my-index-000001/ | python3 -m json.tool
 ```
 
 ```bash
-curl -fsSlku "elastic:$PASSWORD" -X GET https://localhost:9200/my-index-000001/_search | python3 -m json.tool
+curl -fsSlku "elastic:changeme" -X GET https://localhost:9200/my-index-000001/_search | python3 -m json.tool
 ```
 
 ## --- Part 3 ---
